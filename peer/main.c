@@ -303,5 +303,7 @@ void signal_handler(int signal) {
 	char comando[300];
 	snprintf(comando, sizeof(comando), "sudo wg-quick down %s", cwd);
 	system(comando);
+
+	printf("\n\n\nELIMINA LA CARTELLA DEL PEER | DELETE THE PEER HIDDEN FOLDER\n\n\n");
     exit(EXIT_SUCCESS);
 }

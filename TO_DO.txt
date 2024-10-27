@@ -1,5 +1,5 @@
 fare in modo che tutti i file "peer-info" vadono nelal sub-dir .peers-info e aggiungere nel make clean che questa se ne va
 
-nel tracker, bisogna pulire ogni volta i file di quel peer, sennò rischi
+nel tracker, bisogna pulire ogni volta i file di quel peer, sennò rischi. ma questo dovrebbe gestirloi il peer, ossia che manda un segnalino al tracker che dice ehi ok puoi eli minare tutto
 
 ogn volta che starti il programma, nuova chiave. quindi non sei ricontattable.

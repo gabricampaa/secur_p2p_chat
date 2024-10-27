@@ -204,10 +204,9 @@ void receiving(int server_fd) {
         close(client_socket);
         return;
     }
-    printf("\n\n\n\nCHIAVE PIRTVTA HOST: %s\n\n\n\n\n",pathToHostPrivateKey);
-    RSACommLib_Decrypt(pathToHostPrivateKey, buffer, decrDef);
-
-    printf("\n\n%s", decrDef);
+    //printf("\n\n\n\nCHIAVE PIRTVTA HOST: %s\n\n\n\n\n",pathToHostPrivateKey);
+    //RSACommLib_Decrypt(pathToHostPrivateKey, buffer, decrDef);
+    //printf("\n\n%s", decrDef);
     free(decrDef); // Libera la memoria allocata per decrDef
     close(client_socket);
 }
