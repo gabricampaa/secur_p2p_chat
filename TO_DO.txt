@@ -1,3 +1,5 @@
-quando premi 0 nella chat (o Ctrl+C) lui deve disattivare la connessione vpn (SINGALS e EXCEPTIONS)
+fare in modo che tutti i file "peer-info" vadono nelal sub-dir .peers-info e aggiungere nel make clean che questa se ne va
 
-AGGIUSTARE IL MOMENTO IN CUI LUI SHOWA IL MESSAGGIO DECRITTATO (che ora c'è ssolo se premo 1/0, quindi dopo un input)
+nel tracker, bisogna pulire ogni volta i file di quel peer, sennò rischi
+
+ogn volta che starti il programma, nuova chiave. quindi non sei ricontattable.
