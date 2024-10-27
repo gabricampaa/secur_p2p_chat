@@ -185,14 +185,17 @@ void receiving(int server_fd) {
     }
 
     char buffer[2048] = {0};
+    char testoDecifato[2048];
+
     int valread = recv(client_socket, buffer, sizeof(buffer), 0);
     if (valread == -1) {
         perror("Error receiving message");
         close(client_socket);
         return;
     }
+    RSACommLib_Decrypt(pathToHostPrivateKey, buffer, testoDecifato);
 
-    printf("\n\n\n-----START RECIVING MESSASGEE-----\n\n%s\n\n----END----", buffer);
+    printf("\n\n\n-----START RECIVING MESSASGEE-----\n\n%s \n\n\n%s\n\n----END----", buffer, testoDecifato);
     int buf_len = strlen(buffer) / 2;
 
     char *decrDef = malloc(2048); // Assicurati di allocare memoria per decrDef
