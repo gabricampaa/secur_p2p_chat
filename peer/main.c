@@ -7,9 +7,11 @@
 #include <string.h>
 #include <arpa/inet.h>
 #include <pthread.h>
-#include <openssl/ssl.h>
-#include <openssl/err.h>
-#include <openssl/err.h>
+#include <signal.h>
+
+//#include <openssl/ssl.h>
+//#include <openssl/err.h>
+//#include <openssl/err.h>
 #include <curl/curl.h>
 
 #include "librerie/configuringVpn.h"
@@ -40,8 +42,14 @@ char* retrieve_assigend_private_ip(const char* host, int port);  // -> from the 
 void download_file(const char *base_url, const char *ip_folder, const char *filename); // -> from the tracker server
 
 
+void signal_handler(int signal);
+
 int main()
 {
+
+    signal(SIGINT, signal_handler);
+    signal(SIGTERM, signal_handler);
+
 	char cwd[1024];
 	getcwd(cwd, sizeof(cwd));
 	DEBUG_PRINT("%s", cwd);
@@ -281,4 +289,19 @@ void download_file(const char *base_url, const char *ip_folder, const char *file
     char command[300];
     snprintf(command, sizeof(command), "wget %s/%s/%s", base_url, ip_folder, filename);
     system(command);
+}
+
+
+
+void signal_handler(int signal) {
+    printf("\nSignal %d received.\n", signal);
+    printf("\n\nREMEMBER TO DISABLE THE WIREGUARD CONF\n\n");
+    char cwd[1024];
+	getcwd(cwd, sizeof(cwd));
+	snprintf(cwd, sizeof(cwd), ".vpn-secrets/wg0_vpn.conf");
+
+	char comando[300];
+	snprintf(comando, sizeof(comando), "sudo wg-quick down %s", cwd);
+	system(comando);
+    exit(EXIT_SUCCESS);
 }
