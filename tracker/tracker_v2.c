@@ -35,27 +35,23 @@ void *thread_function(void *arg);// Function that will be run by the thread
 
 
 
-
 int main() {
 
-    pthread_t thread; // Thread identifier
+    pthread_t thread;
     int result;
 
-    // Create the thread
     result = pthread_create(&thread, NULL, thread_function, NULL);
     if (result != 0) {
         fprintf(stderr, "Error creating thread\n");
         return 1;
     }
 
-    HashTable hash_table = {NULL, 0};
+    HashTable hash_table = {NULL, 0}; //initin the hash table that will hold the users values
 
     int server_socket, client_socket;
     socklen_t client_length;
     struct sockaddr_in server_address, client_address;
 
-
-    // Create a socket
     server_socket = socket(AF_INET, SOCK_STREAM, 0);
     if (server_socket < 0) {
         perror("Error opening socket");
@@ -81,7 +77,7 @@ int main() {
     int last_suffix = 1;
 
     while (1) {
-        // Accept a client connection
+        // Accept a client connection and handling it with
         client_length = sizeof(client_address);
         client_socket = accept(server_socket, (struct sockaddr *)&client_address, &client_length);
         if (client_socket < 0) {

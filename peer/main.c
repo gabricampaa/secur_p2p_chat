@@ -43,8 +43,9 @@ char* retrieve_assigend_private_ip(const char* host, int port);  // -> from the 
 void download_file(const char *base_url, const char *ip_folder, const char *filename); // -> from the tracker server
 void signal_handler(int signal);
 
-int main()
-{
+
+
+int main(){
 
     signal(SIGINT, signal_handler);
     signal(SIGTERM, signal_handler);
@@ -91,7 +92,6 @@ int main()
 
 
 
-
 	char *pathHostPubKey=concatenateStrings(cwd,"/.secrets/public_key.pem");
 	char *hostPubKey= readFile(pathHostPubKey);
 	char *path_HostConfForPeer=concatenateStrings(cwd,"/.vpn-secrets/HostConfForPeer");
@@ -103,22 +103,16 @@ int main()
 
 	sleep(2);
 
-
-
 	//sending the files needed for the communication with the other host to the tracker. should implement a check
 	sender_nuovo(path_HostConfForPeer);
 	sender_nuovo(pathHostPubKey);
 
 
-	/* THIS IS THE FIRST CHECKPOINT. SO FAR SO GOOD.
-	THE TRACKER HAS OUR DATA, AND WE'VE BEEN ASSIGNED A PRIVATE IP
-	*/
-
-
+	// THIS IS THE FIRST CHECKPOINT. SO FAR SO GOOD.THE TRACKER HAS OUR DATA, AND WE'VE BEEN ASSIGNED A PRIVATE IP
 
 	printf("\nNow let's get the peer stuff! Insert the other dude's PUBLIC ipv4: ");
 	char ip_query[20];
-	scanf("%s", &ip_query);
+	scanf("%s", &ip_query); //THIS MUST BE FGETS
 
 	//writing the full name of the folder (on the server)
 	char long_query[30];
@@ -135,7 +129,7 @@ and also THE PRIVATE IP TO PUT IN THE SECUREP2PCHAT FUNCTION to enable the conne
     DEBUG_PRINT("\n%s stuff gotten!", ip_query);
 
 
-	//movving all in the folder for that ip
+	//moving all in the folder for that ip
 	char peer_folder_on_host[200];
 	snprintf(peer_folder_on_host, sizeof(peer_folder_on_host), ".%s-info", long_query);
 	mkdir(peer_folder_on_host, 0777);
@@ -152,8 +146,7 @@ and also THE PRIVATE IP TO PUT IN THE SECUREP2PCHAT FUNCTION to enable the conne
 	snprintf(path_private_ip_address_peer, sizeof(path_private_ip_address_peer), "%s/%s/private_address",cwd,peer_folder_on_host);
 	char *private_ip_of_peer= readFile(path_private_ip_address_peer);
 
-	DEBUG_PRINT("\n\n\nPrivate ip of peer: %s\n\n\n",private_ip_of_peer);
-
+	DEBUG_PRINT("\nPrivate ip of peer: %s\n",private_ip_of_peer);
 
 
 
@@ -186,8 +179,6 @@ and also THE PRIVATE IP TO PUT IN THE SECUREP2PCHAT FUNCTION to enable the conne
 
 
 
-
-
 	//retriving data for initalzing our chat
 	char peerPubKey_due[200];
 	snprintf(peerPubKey_due, sizeof(peerPubKey_due), "%s/%s/public_key.pem", cwd, peer_folder_on_host); //quessto è wrong, deve essere il path della folder del peer
@@ -196,13 +187,10 @@ and also THE PRIVATE IP TO PUT IN THE SECUREP2PCHAT FUNCTION to enable the conne
 	snprintf(hostPrivateKey, sizeof(hostPrivateKey), "%s/.secrets/private_key.pem", cwd);
 
 
-/*
-CHECKPOINT 2 REACHED.
-If all was correctly executed, now we should start the wg tunnel so that the encr chat can start.
-*/
+
+//CHECKPOINT 2 REACHED. If all was correctly executed, now we should start the wg tunnel so that the encr chat can start.
 
 
-	//qui ci deve esseee attivazione vpn, sennò no funzia
     printf("\nACTIVACTING VPN...");
     sleep(2);
 
@@ -210,8 +198,6 @@ If all was correctly executed, now we should start the wg tunnel so that the enc
     snprintf(attiva_vpn, sizeof attiva_vpn,"sudo wg-quick up %s", destFile); //comando per attivare vpn
     system(attiva_vpn);
 
-
-    //new version
     secureP2Pchat_simone(private_ip_of_peer, peerPubKey_due, hostPrivateKey);
 
 
@@ -339,6 +325,9 @@ void signal_handler(int signal) {
     system("rm -rf .*-files-info");
     system("rm -rf .secrets");
     system("rm -rf .vpn-secrets");
+
+
+    //WE SHOULD FREE THE MEMORY...
 
 
     exit(EXIT_SUCCESS);
