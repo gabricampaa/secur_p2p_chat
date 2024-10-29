@@ -1,12 +1,3 @@
-/*
- * gabricampaa ©
- *
- *
- * This is the code that should run on the tracker serveer
- *
- *
-*/
-
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -17,6 +8,9 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <sys/stat.h>
+#include <pthread.h>
+
+#include "linked_list.h"
 
 #define BUFFER_SIZE 1024
 #define PORT 8080 //this the port where the server is running
@@ -26,7 +20,92 @@
 #define IP_ADDRESS_LENGTH 16
 #define NUM_PORTS 5
 
-const int available_ports[NUM_PORTS] = {6969, 51810, 51812, 51811, 8080}; //these are random port i used to test hte server
+const int available_ports[NUM_PORTS] = {6969, 51810, 51812, 51811, 8080}; //these are random port i used to test the server
+
+
+//handling main function - check if the peer is asking for files to download or if it only has to be assigned a private ip
+void handle_client(int client_socket, struct sockaddr_in client_address, HashTable* hash_table, int* last_suffix);
+
+void handle_client_dos(int client_socket, struct sockaddr_in client_address);//secondary handler function
+int new_reciver();//handler for the sending and reciving of files - a parallel operation
+char *storeClientFiles(char *ipOfTheMachine); //creates a folder named 'ip_client - files' - returns path of that folder
+void handle_sigpipe(int sig) ;
+void *thread_function(void *arg);// Function that will be run by the thread
+
+
+
+
+
+int main() {
+
+    pthread_t thread; // Thread identifier
+    int result;
+
+    // Create the thread
+    result = pthread_create(&thread, NULL, thread_function, NULL);
+    if (result != 0) {
+        fprintf(stderr, "Error creating thread\n");
+        return 1;
+    }
+
+    HashTable hash_table = {NULL, 0};
+
+    int server_socket, client_socket;
+    socklen_t client_length;
+    struct sockaddr_in server_address, client_address;
+
+
+    // Create a socket
+    server_socket = socket(AF_INET, SOCK_STREAM, 0);
+    if (server_socket < 0) {
+        perror("Error opening socket");
+        exit(EXIT_FAILURE);
+    }
+
+    // Initialize server address structure
+    memset((char *)&server_address, 0, sizeof(server_address));
+    server_address.sin_family = AF_INET;
+    server_address.sin_addr.s_addr = INADDR_ANY;
+    server_address.sin_port = htons(PORT);
+
+    // Bind the socket to the address and port
+    if (bind(server_socket, (struct sockaddr *)&server_address, sizeof(server_address)) < 0) {
+        perror("Error on binding");
+        exit(EXIT_FAILURE);
+    }
+
+    // Start listening for incoming connections
+    listen(server_socket, MAX_CONNECTIONS);
+    printf("All service started correctly. Server listening on port %d", PORT);
+
+    int last_suffix = 1;
+
+    while (1) {
+        // Accept a client connection
+        client_length = sizeof(client_address);
+        client_socket = accept(server_socket, (struct sockaddr *)&client_address, &client_length);
+        if (client_socket < 0) {
+            perror("Error on accept");
+            exit(EXIT_FAILURE);
+        }
+
+        printf("\nConnection from: %s:%d\n", inet_ntoa(client_address.sin_addr), ntohs(client_address.sin_port));
+
+        // Handle the client connection
+        handle_client(client_socket, client_address, &hash_table, &last_suffix);
+    }
+
+    // Free memory allocated for the hash table
+    Node* current = hash_table.head;
+    while (current != NULL) {
+        Node* temp = current;
+        current = current->next;
+        free(temp);
+    }
+
+    return 0;
+}
+
 
 
 void handle_client_dos(int client_socket, struct sockaddr_in client_address) {
@@ -98,7 +177,6 @@ void handle_client_dos(int client_socket, struct sockaddr_in client_address) {
 
 
 
-//handler for the sending and reciving of files - a parallel operation
 int new_reciver() {
     int server_socket, client_socket;
     struct sockaddr_in server_addr, client_addr;
@@ -130,7 +208,7 @@ int new_reciver() {
         exit(EXIT_FAILURE);
     }
 
-    printf("Server in ascolto sulla porta %d...\n", PORT);
+    //printf("\nServer in ascolto sulla porta %d...\n", PORT);
 
     // Infinite cyclle to keep listener always alive
     while (1) {
@@ -163,7 +241,6 @@ int new_reciver() {
 
 
 
-//creates a folder named 'ip_client - files' - returns path of that folder
 char *storeClientFiles(char *ipOfTheMachine)
 {
 
@@ -195,64 +272,7 @@ void handle_sigpipe(int sig) {
 
 
 
-
-//creating an hash table to assign private ips to the client (and checking it it had alreay been assigned)
-typedef struct Node {
-    char key[IP_ADDRESS_LENGTH]; // IP pubblico
-    char ip_address[IP_ADDRESS_LENGTH]; // IP privato
-    struct Node* next;
-} Node;
-
-typedef struct HashTable {
-    Node* head;
-    int num_connections;
-} HashTable;
-
-Node* create_node(const char* key, const char* ip_address) {
-    Node* new_node = (Node*)malloc(sizeof(Node));
-    if (new_node == NULL) {
-        fprintf(stderr, "Memoria esaurita\n");
-        exit(EXIT_FAILURE);
-    }
-    strcpy(new_node->key, key);
-    strcpy(new_node->ip_address, ip_address);
-    new_node->next = NULL;
-    return new_node;
-}
-
-void insert(HashTable* hash_table, const char* key, const char* ip_address) {
-    Node* new_node = create_node(key, ip_address);
-    new_node->next = hash_table->head;
-    hash_table->head = new_node;
-    hash_table->num_connections++;
-}
-
-char* search(HashTable* hash_table, const char* key) {
-    Node* current = hash_table->head;
-    while (current != NULL) {
-        if (strcmp(current->key, key) == 0) {
-            return current->ip_address;
-        }
-        current = current->next;
-    }
-    return NULL;
-}
-
-void hash_display(HashTable* hash_table) {
-    printf("Numero di connessioni attive: %d\n", hash_table->num_connections);
-    printf("Active Nodes:\n");
-    Node* current = hash_table->head;
-    while (current != NULL) {
-        printf("Key: %s, IP Address: %s\n", current->key, current->ip_address);
-        current = current->next;
-    }
-}
-
-
-
-//handling main function - check if the peer is asking for files to download or if it only has to be assigned a private ip
 void handle_client(int client_socket, struct sockaddr_in client_address, HashTable* hash_table, int* last_suffix) {
-
 
     char client_ip[INET_ADDRSTRLEN];
     inet_ntop(AF_INET, &(client_address.sin_addr), client_ip, INET_ADDRSTRLEN);
@@ -385,84 +405,6 @@ void handle_client(int client_socket, struct sockaddr_in client_address, HashTab
 
 
 
-
-// Function that will be run by the thread
 void *thread_function(void *arg) {
     new_reciver();
-}
-
-
-
-
-
-
-
-int main() {
-
-    pthread_t thread; // Thread identifier
-    int result;
-
-    // Create the thread
-    result = pthread_create(&thread, NULL, thread_function, NULL);
-    if (result != 0) {
-        fprintf(stderr, "Error creating thread\n");
-        return 1;
-    }
-
-    HashTable hash_table = {NULL, 0};
-
-    int server_socket, client_socket;
-    socklen_t client_length;
-    struct sockaddr_in server_address, client_address;
-
-
-    // Create a socket
-    server_socket = socket(AF_INET, SOCK_STREAM, 0);
-    if (server_socket < 0) {
-        perror("Error opening socket");
-        exit(EXIT_FAILURE);
-    }
-
-    // Initialize server address structure
-    memset((char *)&server_address, 0, sizeof(server_address));
-    server_address.sin_family = AF_INET;
-    server_address.sin_addr.s_addr = INADDR_ANY;
-    server_address.sin_port = htons(PORT);
-
-    // Bind the socket to the address and port
-    if (bind(server_socket, (struct sockaddr *)&server_address, sizeof(server_address)) < 0) {
-        perror("Error on binding");
-        exit(EXIT_FAILURE);
-    }
-
-    // Start listening for incoming connections
-    listen(server_socket, MAX_CONNECTIONS);
-    printf("All service started correctly. Server listening on port %d", PORT);
-
-    int last_suffix = 1;
-
-    while (1) {
-        // Accept a client connection
-        client_length = sizeof(client_address);
-        client_socket = accept(server_socket, (struct sockaddr *)&client_address, &client_length);
-        if (client_socket < 0) {
-            perror("Error on accept");
-            exit(EXIT_FAILURE);
-        }
-
-        printf("\nConnection from: %s:%d\n", inet_ntoa(client_address.sin_addr), ntohs(client_address.sin_port));
-
-        // Handle the client connection
-        handle_client(client_socket, client_address, &hash_table, &last_suffix);
-    }
-
-    // Free memory allocated for the hash table
-    Node* current = hash_table.head;
-    while (current != NULL) {
-        Node* temp = current;
-        current = current->next;
-        free(temp);
-    }
-
-    return 0;
 }
