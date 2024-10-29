@@ -19,14 +19,14 @@
 #include <sys/stat.h>
 
 #define BUFFER_SIZE 1024
-#define PORT 8080
+#define PORT 8080 //this the port where the server is running
 
 #define MAX_CONNECTIONS 5
 #define HASH_TABLE_SIZE 255
 #define IP_ADDRESS_LENGTH 16
 #define NUM_PORTS 5
 
-const int available_ports[NUM_PORTS] = {6969, 51810, 51812, 51811, 8080};
+const int available_ports[NUM_PORTS] = {6969, 51810, 51812, 51811, 8080}; //these are random port i used to test hte server
 
 
 void handle_client_dos(int client_socket, struct sockaddr_in client_address) {
@@ -341,6 +341,14 @@ void handle_client(int client_socket, struct sockaddr_in client_address, HashTab
 
         return;
 
+    }else if(strncmp(request, "DEL", 3) == 0){
+        printf("\nÈ richiesta DEL!\n");
+
+        char comando[300];
+        snprintf(comando, sizeof(comando),"rm -rf %s-files/", client_ip);
+        printf("\nexecuting... %s", comando);
+        system(comando); //removing peer files
+
     }else{
 
         printf("\nNon è richiesta get!\n");
@@ -454,7 +462,7 @@ int main() {
 
     // Start listening for incoming connections
     listen(server_socket, MAX_CONNECTIONS);
-    printf("Server listening on port %d\n", PORT);
+    printf("All service started correctly. Server listening on port %d", PORT);
 
     int last_suffix = 1;
 
@@ -467,7 +475,7 @@ int main() {
             exit(EXIT_FAILURE);
         }
 
-        printf("\n\n\nConnection from: %s:%d\n", inet_ntoa(client_address.sin_addr), ntohs(client_address.sin_port));
+        printf("\nConnection from: %s:%d\n", inet_ntoa(client_address.sin_addr), ntohs(client_address.sin_port));
 
         // Handle the client connection
         handle_client(client_socket, client_address, &hash_table, &last_suffix);

@@ -28,6 +28,7 @@
 
 #define PATH_TRACKER_DIRECTORY "http://13.53.40.109:8080/home/ubuntu/apple/"
 #define TRACKER_SERVER_IP "13.53.40.109"
+#define TRACKER_LISTENING_PORT 8080
 
 //conditional debug
 #ifdef DEBUG
@@ -40,8 +41,6 @@
 
 char* retrieve_assigend_private_ip(const char* host, int port);  // -> from the tracker server
 void download_file(const char *base_url, const char *ip_folder, const char *filename); // -> from the tracker server
-
-
 void signal_handler(int signal);
 
 int main()
@@ -200,10 +199,6 @@ and also THE PRIVATE IP TO PUT IN THE SECUREP2PCHAT FUNCTION to enable the conne
 /*
 CHECKPOINT 2 REACHED.
 If all was correctly executed, now we should start the wg tunnel so that the encr chat can start.
-
-Al 26 giugno, tutto funziona perfettamente fino a questo putno. Ci sono solo dei
-problemi per quanto riguarda la memoria. Chiaramente, da questo punto in acanti non funzia
-Inoltre, dovrai inserire un controllo che disattiva la conf wireguard quando si quitta
 */
 
 
@@ -294,16 +289,57 @@ void download_file(const char *base_url, const char *ip_folder, const char *file
 
 
 void signal_handler(int signal) {
+    //HANDLING OF THE quit request, disabling the wg conf and deleting file from hosta and peer
     printf("\nSignal %d received.\n", signal);
-    printf("\n\nREMEMBER TO DISABLE THE WIREGUARD CONF\n\n");
     char cwd[1024];
-	getcwd(cwd, sizeof(cwd));
-	snprintf(cwd, sizeof(cwd), ".vpn-secrets/wg0_vpn.conf");
+    if (getcwd(cwd, sizeof(cwd)) == NULL) {
+        perror("getcwd error");
+        return;
+    }
 
-	char comando[300];
-	snprintf(comando, sizeof(comando), "sudo wg-quick down %s", cwd);
-	system(comando);
+    char wg_conf_path[1024];
+    snprintf(wg_conf_path, sizeof(wg_conf_path), "%s/.vpn-secrets/wg0_vpn.conf", cwd);
 
-	printf("\n\n\nELIMINA LA CARTELLA DEL PEER | DELETE THE PEER HIDDEN FOLDER\n\n\n");
+    char comando[300];
+    snprintf(comando, sizeof(comando), "sudo wg-quick down %s", wg_conf_path);
+    if (system(comando) == -1) {
+        perror("Failed to execute wg-quick down");
+    }
+
+
+    // now let's delete this host files' from the peer
+    int sock = 0;
+    struct sockaddr_in serv_addr;
+    char hello[5] = "DEL";
+
+    if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+        perror("Socket creation error");
+        return;
+    }
+
+    serv_addr.sin_family = AF_INET;
+    serv_addr.sin_addr.s_addr = inet_addr(TRACKER_SERVER_IP); // Ensure TRACKER_SERVER_IP is defined
+    serv_addr.sin_port = htons(TRACKER_LISTENING_PORT);
+
+    if (connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) {
+        perror("Connection failed");
+        close(sock);
+        return;
+    }
+
+    if (send(sock, hello, strlen(hello), 0) < 0) {
+        perror("Send failed");
+    } else {
+        printf("\nMessage sent.\n");
+    }
+
+    close(sock);
+
+    // Deleting all peers and various data on this machine
+    system("rm -rf .*-files-info");
+    system("rm -rf .secrets");
+    system("rm -rf .vpn-secrets");
+
+
     exit(EXIT_SUCCESS);
 }

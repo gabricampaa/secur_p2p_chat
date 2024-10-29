@@ -24,6 +24,7 @@ clean:
 	sudo rm -f public_key.pem
 	sudo rm -f HostConfForPeer
 	sudo rm -rf main_beta.dSYM
+	sudo rm -rf .*-files-info
 
 run:
 	./$(executable_name)
