@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS  = -lssl -pthread -lcrypto -lcurl -w #-Wall
+CFLAGS  = -lssl -pthread -lcrypto -lcurl -w -g #-Wall
 TARGET = main
 executable_name = main_beta
 other_files = librerie/RSACommLib.c librerie/readFile.c librerie/configuringVpn.c librerie/file_sender_new.c librerie/miaLibVarie.c librerie/p2p_chat.c
