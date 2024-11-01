@@ -10,6 +10,12 @@
 #include "miaLibVarie.h"
 #include  "RSACommLib.h"
 
+//gcc -o main_bb DEF_p2p_Chat_simo_cript.c librerie/RSACommLib.c librerie/miaLibVarie.c  -lssl -lcrypto -w -lcurl  -g
+
+// gcc -o main_bb main.c librerie/RSACommLib.c librerie/miaLibVarie.c  -lssl -lcrypto -w -lcurl  -g
+//#define LISTENING_PORT_RECIVING_FILES 51811
+//#define PORT_FOR_SENDING_FILES 51812
+
 
 int PORT = 51810;
 
@@ -39,15 +45,8 @@ int secureP2Pchat_simone(char* TargetIp, char* peer_s_pubKeyPath, char* pathToHo
         printf("Public IPv4 address of this machine: %s\n\n", publicIP);
         free(publicIP); // Free memory allocated for publicIP
 
-
-
-
-
-    #ifdef __linux__
-    char comandoAllowPorta[100];
-    snprintf(comandoAllowPorta, sizeof(comandoAllowPorta), "sudo ufw allow %s", PORT);
-    system(comandoAllowPorta);
-    #endif
+        printf("Enter your name (max 20 char):");
+        fgets(name, sizeof(name), stdin);
 
 
     int server_fd, new_socket, valread;
@@ -140,6 +139,7 @@ char dummy;
         close(sock);
         return;
     }
+
 
     send(sock,ciphertext,strlen(ciphertext), 0);
     printf("\nMessage sent.\n");
