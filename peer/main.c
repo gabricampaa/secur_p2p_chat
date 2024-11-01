@@ -42,7 +42,6 @@ void signal_handler(int signal);
 
 int main(){
 
-   	DEBUG_PRINT("Run with sudo!\n");
     signal(SIGINT, signal_handler);
     signal(SIGTERM, signal_handler);
 
@@ -324,10 +323,6 @@ void signal_handler(int signal) {
     system("rm -rf .*-files-info");
     system("rm -rf .secrets");
     system("rm -rf .vpn-secrets");
-
-
-    //WE SHOULD FREE THE MEMORY...
-
 
     exit(EXIT_SUCCESS);
 }
