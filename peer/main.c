@@ -210,7 +210,7 @@ int main(){
 
     return 0;
 }
-
+}
 
 char* retrieve_assigend_private_ip(const char* host, int port) {
     int sockfd;
