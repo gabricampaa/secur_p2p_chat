@@ -31,7 +31,9 @@ char *pathToHostPrivateKey[256];
 int secureP2Pchat_simone(char* TargetIp, char* peer_s_pubKeyPath, char* pathToHostPrivKey)
 {
 
-    	char *workingDirectory = get_cwd();
+        char cwd[1024];
+        getcwd(cwd, sizeof(cwd));
+    	char *workingDirectory = cwd;
         const char *fileChiave = concatenateStrings(workingDirectory, ".secrets/public_key.pem");
 
         //pathToHostPrivateKey = pathToHostPrivKey;
