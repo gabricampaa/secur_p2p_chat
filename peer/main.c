@@ -42,7 +42,7 @@ void signal_handler(int signal);
 
 int main(){
 
-   	DEBUG_PRINT("Run with sudo!\n", cwd);
+   	DEBUG_PRINT("Run with sudo!\n");
     signal(SIGINT, signal_handler);
     signal(SIGTERM, signal_handler);
 
@@ -131,7 +131,7 @@ int main(){
    download_file(PATH_TRACKER_DIRECTORY, long_query, "HostConfForPeer");
    download_file(PATH_TRACKER_DIRECTORY, long_query, "public_key.pem");
    download_file(PATH_TRACKER_DIRECTORY, long_query, "private_address");
-   DEBUG_PRINT("\n%s stuff gotten!", ip_query);
+   DEBUG_PRINT("\n%s stuff gotten!", peerIp);
 
 
    //moving all in the folder for that ip
