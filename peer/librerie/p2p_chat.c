@@ -10,12 +10,6 @@
 #include "miaLibVarie.h"
 #include  "RSACommLib.h"
 
-//gcc -o main_bb DEF_p2p_Chat_simo_cript.c librerie/RSACommLib.c librerie/miaLibVarie.c  -lssl -lcrypto -w -lcurl  -g
-
-// gcc -o main_bb main.c librerie/RSACommLib.c librerie/miaLibVarie.c  -lssl -lcrypto -w -lcurl  -g
-//#define LISTENING_PORT_RECIVING_FILES 51811
-//#define PORT_FOR_SENDING_FILES 51812
-
 
 int PORT = 51810;
 
@@ -45,18 +39,16 @@ int secureP2Pchat_simone(char* TargetIp, char* peer_s_pubKeyPath, char* pathToHo
         printf("Public IPv4 address of this machine: %s\n\n", publicIP);
         free(publicIP); // Free memory allocated for publicIP
 
-        printf("Enter your name (max 20 char):");
-        fgets(name, sizeof(name), stdin);
 
 
 
-/*sudo ufw allow this porta
-#ifdef __linux__
-char comandoAllowPorta[100];
-snprintf(comandoAllowPorta, sizeof(comandoAllowPorta), "sudo ufw allow %s", PORT);
-system(comandoAllowPorta);
-#endif
-*/
+
+    #ifdef __linux__
+    char comandoAllowPorta[100];
+    snprintf(comandoAllowPorta, sizeof(comandoAllowPorta), "sudo ufw allow %s", PORT);
+    system(comandoAllowPorta);
+    #endif
+
 
     int server_fd, new_socket, valread;
     struct sockaddr_in address;
@@ -149,13 +141,6 @@ char dummy;
         return;
     }
 
-   // char hex_string[ciphertext_len * 2 + 1];
-    //for (int i = 0; i < ciphertext_len; i++) {
-    //    sprintf(hex_string + i * 2, "%02X", (unsigned char)ciphertext[i]);
- //   }
-  //  hex_string[ciphertext_len * 2] = '\0';
-
-   // send(sock, hex_string, strlen(hex_string), 0);
     send(sock,ciphertext,strlen(ciphertext), 0);
     printf("\nMessage sent.\n");
 
