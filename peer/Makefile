@@ -9,9 +9,9 @@ EXECUTABLE = main_beta
 DEBUG_SUFFIX = _debug
 
 # Source files
-OTHER_FILES = librerie/RSACommLib.c librerie/new_version_p2p_chat.c \
+OTHER_FILES = librerie/RSACommLib.c librerie/p2p_chat.c \
               librerie/readFile.c librerie/configuringVpn.c \
-              librerie/file_sender_new.c librerie/crittografia.c \
+              librerie/file_sender_new.c \
               librerie/miaLibVarie.c
 
 
