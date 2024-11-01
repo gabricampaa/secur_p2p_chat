@@ -45,8 +45,6 @@ int secureP2Pchat_simone(char* TargetIp, char* peer_s_pubKeyPath, char* pathToHo
         printf("Public IPv4 address of this machine: %s\n\n", publicIP);
         free(publicIP); // Free memory allocated for publicIP
 
-        printf("Enter your name (max 20 char):");
-        fgets(name, sizeof(name), stdin);
 
 
     int server_fd, new_socket, valread;
@@ -191,41 +189,7 @@ void receiving(int server_fd) {
         close(client_socket);
         return;
     }
-    //printf("\n\n\n\nCHIAVE PIRTVTA HOST: %s\n\n\n\n\n",pathToHostPrivateKey);
-    //RSACommLib_Decrypt(pathToHostPrivateKey, buffer, decrDef);
-    //printf("\n\n%s", decrDef);
+
     free(decrDef); // Libera la memoria allocata per decrDef
     close(client_socket);
 }
-
-
-/*
-int main(){
-
-#define PRIV_KEY_PATH "private_key.pem"
-#define PUB_KEY_PATH "public_key.pem"
-
-FILE *privKeyGen = fopen(PRIV_KEY_PATH, "w");
-fclose(privKeyGen);
-
-FILE *pubKeyGen = fopen(PUB_KEY_PATH, "w");
-fclose(pubKeyGen);
-
-
-    RSACommLib_Init(2048, PRIV_KEY_PATH, PUB_KEY_PATH);
-
-    RSACommLib_Init(2048, PRIV_KEY_PATH, PUB_KEY_PATH);
-
-    printf("\nInsertDudes ip: ");
-    char buffero[20];
-    fgets(buffero, sizeof(buffero), stdin);
-
-    secureP2Pchat_simone(buffero, PUB_KEY_PATH,PRIV_KEY_PATH);
-
-   // for(;;);
-
-
-    return 0;
-}
-
-*/
