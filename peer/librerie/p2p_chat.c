@@ -106,6 +106,7 @@ int secureP2Pchat_simone(char* TargetIp, char* peer_s_pubKeyPath, char* pathToHo
 void sending(char* TargetIp, char *pathToPeerPubKey) {
     char buffer[2000] = {0};
     int PORT_server = PORT;
+    char dummy;
 
     int sock = 0;
     struct sockaddr_in serv_addr;
@@ -125,10 +126,15 @@ void sending(char* TargetIp, char *pathToPeerPubKey) {
         return;
     }
 
-char dummy;
+
     printf("Enter your message: ");
-    scanf("%c", &dummy); // Clear the newline character from the buffer
-    scanf("%[^\n]s", hello);
+    //scanf("%c", &dummy); // Clear the newline character from the buffer
+
+    if (fgets(hello, sizeof(hello), stdin) == NULL) {
+            perror("Error reading input");
+            close(sock);
+            return;
+        }
 
     char ciphertext[300];
     int ciphertext_len = RSACommLib_Encrypt(pathToPeerPubKey, hello, ciphertext);
