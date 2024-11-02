@@ -150,6 +150,8 @@ void sending(char* TargetIp, char *pathToPeerPubKey) {
     printf("\nMessage sent.\n");
 
     close(sock);
+    fflush(stdout); // Aggiungi questo per forzare l'output immediato
+
 }
 
 
@@ -201,4 +203,6 @@ void receiving(int server_fd) {
 
     free(decrDef); // Libera la memoria allocata per decrDef
     close(client_socket);
+    fflush(stdout); // Aggiungi questo per forzare l'output immediato
+
 }
