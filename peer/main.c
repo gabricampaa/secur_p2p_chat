@@ -313,9 +313,9 @@ void signal_handler(int signal) {
     }
 
     if (send(sock, hello, strlen(hello), 0) < 0) {
-        perror("Send failed");
+        DEBUG_PRINT("Send failed");
     } else {
-        printf("\nMessage sent.\n");
+        DEBUG_PRINT("\nDEL request correctly sent.\n");
     }
 
     close(sock);
