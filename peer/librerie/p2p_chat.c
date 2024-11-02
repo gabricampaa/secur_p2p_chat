@@ -126,6 +126,7 @@ void sending(char* TargetIp, char *pathToPeerPubKey) {
         return;
     }
 
+    fflush(stdout); // Aggiungi questo per forzare l'output immediato
 
     printf("Enter your message: ");
     //scanf("%c", &dummy); // Clear the newline character from the buffer
@@ -174,6 +175,8 @@ void receiving(int server_fd) {
         perror("accept");
         exit(EXIT_FAILURE);
     }
+    fflush(stdout); // Aggiungi questo per forzare l'output immediato
+
 
     char buffer[2048] = {0};
     char testoDecifato[2048];
