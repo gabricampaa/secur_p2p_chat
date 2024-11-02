@@ -194,6 +194,7 @@ int main(){
     snprintf(attiva_vpn, sizeof attiva_vpn,"sudo wg-quick up %s", destFile);
     system(attiva_vpn);
 
+    sleep(2);
 
 
     //now wee should erease the config file and the folder
