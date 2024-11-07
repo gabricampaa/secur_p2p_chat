@@ -18,6 +18,12 @@
 #include "librerie/RSACommLib.h"
 #include "librerie/p2p_chat.h"
 
+#ifdef DEBUG
+    #define DEBUG_PRINT(fmt, args...)    fprintf(stderr, "\033[0;31mDEBUG: " fmt "\033[0m", ## args)
+#else
+    #define DEBUG_PRINT(fmt, args...)    /* Don't do anything in release builds */
+#endif
+
 
 #define MAX_IP_LENGTH 18
 #define PORT 51810
@@ -28,17 +34,10 @@
 #define TRACKER_LISTENING_PORT 8080
 
 
-#ifdef DEBUG
-    #define DEBUG_PRINT(fmt, args...)    fprintf(stderr, "\033[0;31mDEBUG: " fmt "\033[0m", ## args)
-#else
-    #define DEBUG_PRINT(fmt, args...)    /* Don't do anything in release builds */
-#endif
-
-
 char* retrieve_assigend_private_ip(const char* host, int port);  // -> from the tracker server
 void download_file(const char *base_url, const char *ip_folder, const char *filename); // -> from the tracker server
 void signal_handler(int signal);
-
+void shut_all();
 
 int main(){
 
@@ -96,7 +95,6 @@ int main(){
 
 	//writing the wireguard configuration that other peer's will append in their wg config file to connect to this ip
 	configurazione_Peer_per_questo_host(cwd, static_assigned_private_ip);
-
 
 	//sending the files needed for the communication with the other host to the tracker.
 	int send_one = sender_nuovo(path_HostConfForPeer);
@@ -171,7 +169,7 @@ int main(){
         exit(EXIT_FAILURE);
     }
 
-    char ch;
+    char ch; //CHE CAZZO è CIO'?
     while ((ch = fgetc(src)) != EOF) {
         fputc(ch, dest);
     }
@@ -205,10 +203,10 @@ int main(){
 	free(hostPubKey);
 	free(path_HostConfForPeer);
 
- secureP2Pchat_simone(private_ip_of_peer, peerPubKey_due, hostPrivateKey);
+ secureP2Pchat_simone(private_ip_of_peer, peerPubKey_due, hostPrivateKey); //FORSE QUESTA SU?
 
-
-    return 0;
+ shut_all();
+ return 0;
 }
 }
 
@@ -276,6 +274,62 @@ void download_file(const char *base_url, const char *ip_folder, const char *file
 void signal_handler(int signal) {
     //HANDLING OF THE quit request, disabling the wg conf and deleting file from host and peer
     printf("\nSignal %d received.\n", signal);
+    char cwd[1024];
+    if (getcwd(cwd, sizeof(cwd)) == NULL) {
+        perror("getcwd error");
+        return;
+    }
+
+    char wg_conf_path[1024];
+    snprintf(wg_conf_path, sizeof(wg_conf_path), "%s/.vpn-secrets/wg0_vpn.conf", cwd);
+
+    char comando[300];
+    snprintf(comando, sizeof(comando), "sudo wg-quick down %s", wg_conf_path);
+    if (system(comando) == -1) {
+        perror("Failed to execute wg-quick down");
+    }
+
+
+    // now let's delete this host files' from the peer
+    int sock = 0;
+    struct sockaddr_in serv_addr;
+    char hello[5] = "DEL";
+
+    if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+        perror("Socket creation error");
+        return;
+    }
+
+    serv_addr.sin_family = AF_INET;
+    serv_addr.sin_addr.s_addr = inet_addr(TRACKER_SERVER_IP); // Ensure TRACKER_SERVER_IP is defined
+    serv_addr.sin_port = htons(TRACKER_LISTENING_PORT);
+
+    if (connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) {
+        perror("Connection failed");
+        close(sock);
+        return;
+    }
+
+    if (send(sock, hello, strlen(hello), 0) < 0) {
+        DEBUG_PRINT("Send failed");
+    } else {
+        DEBUG_PRINT("\nDEL request correctly sent.\n");
+    }
+
+    close(sock);
+
+    // Deleting all peers and various data on this machine
+    system("rm -rf .*-files-info");
+    system("rm -rf .secrets");
+    system("rm -rf .vpn-secrets");
+
+    exit(EXIT_SUCCESS);
+}
+
+
+
+void shut_all() {
+    //HANDLING OF THE quit request, disabling the wg conf and deleting file from host and peer
     char cwd[1024];
     if (getcwd(cwd, sizeof(cwd)) == NULL) {
         perror("getcwd error");
