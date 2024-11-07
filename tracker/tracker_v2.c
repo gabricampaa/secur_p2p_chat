@@ -264,6 +264,7 @@ char *storeClientFiles(char *ipOfTheMachine)
 
 void handle_sigpipe(int sig) {
     // Ignora il segnale SIGPIPE
+    system ("rm -rf *-files");
 }
 
 
