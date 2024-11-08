@@ -12,7 +12,6 @@
 #include <curl/curl.h>
 
 #include "librerie/configuringVpn.h"
-#include "librerie/readFile.h"
 #include "librerie/file_sender_new.h"
 #include "librerie/miaLibVarie.h"
 #include "librerie/RSACommLib.h"
