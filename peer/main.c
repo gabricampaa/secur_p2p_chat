@@ -49,7 +49,6 @@ int main(){
 
 	char *pathVPNconfiguration = concatenateStrings(cwd, "/.vpn-secrets/wg0_vpn.conf");
 	char *pathWireguardPrivateKey = concatenateStrings(cwd, "/.vpn-secrets/privatekey");
-		DEBUG_PRINT("wg priv key: %s\n", pathWireguardPrivateKey);
 
 
 
