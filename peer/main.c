@@ -49,6 +49,8 @@ int main(){
 
 	char *pathVPNconfiguration = concatenateStrings(cwd, "/.vpn-secrets/wg0_vpn.conf");
 	char *pathWireguardPrivateKey = concatenateStrings(cwd, "/.vpn-secrets/privatekey");
+		DEBUG_PRINT("wg priv key: %s\n", pathWireguardPrivateKey);
+
 
 
 	//connecting to the tracker so it can assign this machine's private ip address (for the vpn connection)
@@ -81,8 +83,6 @@ int main(){
 	fprintf(stderr, "Error while configuring the OPENSSL services. \n");
 	return 1;
 	}
-
-	DEBUG_PRINT("\nSOfarSoGooodz\n");
 
 	//if all goes right, we now are ready to write to the config files
 	char *wireguardPrivateKey = readFile(pathWireguardPrivateKey);
