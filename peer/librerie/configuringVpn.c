@@ -17,7 +17,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "readFile.h"
 #include "miaLibVarie.h"
 
 #include "RSACommLib.h"
