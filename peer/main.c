@@ -85,6 +85,7 @@ int main(){
 
 	//if all goes right, we now are ready to write to the config files
 	char *wireguardPrivateKey = readFile(pathWireguardPrivateKey);
+	DEBUG_PRINT("\n%s\n",wireguardPrivateKey);
 	writeConfFile(pathVPNconfiguration, wireguardPrivateKey, PORT, static_assigned_private_ip);	//only this machine's interface, no peer
 
 
