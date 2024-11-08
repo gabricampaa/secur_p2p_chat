@@ -82,6 +82,7 @@ int main(){
 	return 1;
 	}
 
+	DEBUG_PRINT("\nSOfarSoGooodz\n");
 
 	//if all goes right, we now are ready to write to the config files
 	char *wireguardPrivateKey = readFile(pathWireguardPrivateKey);
