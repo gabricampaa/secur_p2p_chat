@@ -123,7 +123,7 @@ void sending(char* TargetIp, char *pathToPeerPubKey) {
     }
 
     char ciphertext[300];
-    int ciphertext_len = RSACommLib_Encrypt(pathToPeerPubKey, hello, ciphertext);
+    int ciphertext_len = RSACommLib_Encrypt(pathToPeerPubKey, hello, ciphertext, 1024);
     if (ciphertext_len == -1) {
         fprintf(stderr, "Error in encrypting plaintext.\n");
         close(sock);
@@ -166,7 +166,7 @@ void receiving(int server_fd) {
         close(client_socket);
         return;
     }
-    RSACommLib_Decrypt(pathToHostPrivateKey, buffer, testoDecifato);
+    RSACommLib_Decrypt(pathToHostPrivateKey, buffer, testoDecifato, 1024);
 
     printf("\n\n\n-----START RECEIVING MESSAGE-----\n\n%s\n\n----END----", testoDecifato);
 
